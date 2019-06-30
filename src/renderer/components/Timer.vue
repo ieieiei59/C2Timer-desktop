@@ -166,8 +166,8 @@ export default {
       }, 100)
     },
     stopTimer: function () {
-      console.log('stop timer: ' + this.timerRoop)
       window.clearInterval(this.timerRoop)
+      this.time = (Date.now() - this.timerStartDate) / 1000
       this.displayTime()
     },
     resetTimer: function () {
