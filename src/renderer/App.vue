@@ -64,7 +64,7 @@ body {
 
 .main-panel{
   min-height: 100vh;
-  width: auto;
+  width: 100vw;
   margin-left: 150px;
 }
 
