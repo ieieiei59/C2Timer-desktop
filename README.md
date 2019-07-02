@@ -1,4 +1,5 @@
 # c2timer_vue
+C2タイマーのデスクトップ版です。
 
 > An electron-vue project
 

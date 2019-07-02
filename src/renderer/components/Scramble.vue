@@ -4,8 +4,8 @@
             <p class="scramble-text">{{ scramble }}</p>
         </div>
         <div class="scramble-form">
-        <button class="scramble-button form-part" @click="getScramble()">スクランブル</button>
-        <select class="type-option form-part" name="" v-model="type" v-on:change="getScramble()">
+        <button class="scramble-button form-part" @click="genScramble()">スクランブル</button>
+        <select class="type-option form-part" name="" v-model="type" v-on:change="genScramble()">
             <option value="222">2x2x2</option>
             <option value="333">3x3x3</option>
         </select>
@@ -34,13 +34,16 @@ export default {
   },
   components: {},
   created () {
-    this.getScramble()
+    this.genScramble()
   },
   methods: {
-    getScramble () {
+    genScramble () {
       this.scrambles.push(this.scramble)
       const newScramble = this.scramblers[this.type].getRandomScramble().scramble_string
       this.scramble = newScramble
+    },
+    getScramble () {
+      return this.scramble
     },
     typeChanged () {
       this.scrambles = []

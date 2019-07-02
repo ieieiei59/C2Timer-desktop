@@ -20,13 +20,22 @@
       <div class="time-description">
         
       </div>
+
+      <div class="times-area">
+        <div class="time-card-outer" v-for="(timeObj, index) in timeArray.slice().reverse().slice(0, 5)" :key='index' >
+          <time-card class="time-card" :timeObj="timeObj"></time-card>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
 
 <script>
 // import { clearInterval, setInterval } from 'timers'
+import {Time} from './Timer/lib/time'
 
+const TimeCard = require('./Timer/TimeCard').default
 const Scramble = require('./Scramble').default
 
 export default {
@@ -47,6 +56,7 @@ export default {
       statusList: null,
       isPlus2: false,
       isDnf: false,
+      timeArray: [],
 
       // タイマー
       timerRoop: null,
@@ -64,7 +74,8 @@ export default {
     }
   },
   components: {
-    scramble: Scramble
+    scramble: Scramble,
+    'time-card': TimeCard
   },
   created () {
     document.addEventListener(
@@ -79,6 +90,22 @@ export default {
     console.log(this)
   },
   methods: {
+    addTimeToArray () {
+      const time = new Time(this.time, this.isPlus2, this.isDnf, this.$children[0].getScramble())
+      this.timeArray.push(time)
+    },
+    toGreen: function () {
+      this.green = true
+      this.red = false
+    },
+    toRed: function () {
+      this.red = true
+      this.green = false
+    },
+    toBlack: function () {
+      this.red = false
+      this.green = false
+    },
     updateStatusList: function () {
       const hasInspection = ['init', 'inspection', 'start', 'stop']
       const withoutInspection = ['init', 'start', 'stop']
@@ -128,6 +155,9 @@ export default {
           if (this.remainingTime < -2) {
             this.isDnf = true
             this.stopInspection()
+            this.addTimeToArray()
+            this.timeText = 'DNF'
+            this.toRed()
             this.setStatus('init')
           }
         }
@@ -171,6 +201,8 @@ export default {
       this.displayTime()
     },
     resetTimer: function () {
+      this.isPlus2 = false
+      this.isDnf = false
       this.time = 0.000
     },
     updateTimer: function () {
@@ -284,22 +316,11 @@ export default {
           break
       }
     },
-    toGreen: function () {
-      this.green = true
-      this.red = false
-    },
-    toRed: function () {
-      this.red = true
-      this.green = false
-    },
-    toBlack: function () {
-      this.red = false
-      this.green = false
-    },
     keyup: function (event) {
       switch (event.code) {
         case 'Space':
           this.spaceKeyUp()
+          event.preventDefault()
           break
       }
     },
@@ -307,6 +328,7 @@ export default {
       switch (event.code) {
         case 'Space':
           this.spaceKeyDown()
+          event.preventDefault()
           break
       }
     }
@@ -315,19 +337,23 @@ export default {
     status: function (newStatus, oldStatus) {
       switch (newStatus) {
         case 'init':
-          this.$children[0].getScramble()
+          this.$children[0].genScramble()
           this.resetInspection()
           this.resetTimer()
           break
         case 'inspection':
+          this.toBlack()
           this.startInspection()
           break
         case 'start':
+          this.toBlack()
           this.stopInspection()
           this.startTimer()
           break
         case 'stop':
+          this.toBlack()
           this.stopTimer()
+          this.addTimeToArray()
           break
       }
       this.printRoopIds()
@@ -363,9 +389,6 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-@import url(https://fonts.googleapis.com/css?family=Mali:200,200italic,300,300italic,regular,italic,500,500italic,600,600italic,700,700italic);
-@import url(https://fonts.googleapis.com/css?family=Kosugi:regular);
-
 .time
     font-weight: bold
     font-family: Mali
@@ -378,16 +401,29 @@ export default {
     justify-content: center
 
 .container
-    padding-top: 5rem
+    padding: 5rem 2rem
 
 .time-description-text
     font-size: 5vw
     font-family: Kosugi
 
+.times-area
+    display: flex
+    flex-wrap: wrap
+    width: 100%
+
+    .time-card-outer
+        width: 20%
+        min-width: 180px
+        align-items: stretch
+        display: flex
+        .time-card
+            margin: 5px
+
 .red-text
-    color: #e46060
+    color: var(--warning-color);
 
 .green-text
-    color: #79d079
+    color: var(--correct-color)
 
 </style>

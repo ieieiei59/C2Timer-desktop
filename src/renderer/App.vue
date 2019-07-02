@@ -32,6 +32,17 @@
 </script>
 
 <style>
+@import url(https://fonts.googleapis.com/css?family=Mali:200,200italic,300,300italic,regular,italic,500,500italic,600,600italic,700,700italic);
+@import url(https://fonts.googleapis.com/css?family=Kosugi:regular);
+
+:root {
+  --main-border-color: rgb(167, 167, 167);
+  --warning-color: #e46060;
+  --correct-color: #79d079;
+  --muted-color: var(--main-border-color);
+  --sub-text-color: rgb(85, 85, 85);
+}
+
 body {
     margin: 0;
     padding: 0;
