@@ -66,6 +66,7 @@ export default {
       timeText: '00.000',
       red: false,
       green: false,
+      timeObj: null,
 
       // hold
       holdOk: false,
@@ -92,10 +93,10 @@ export default {
   },
   computed: {
     ao5: function () {
-      return this.alignTime(this.aoN(5), 3)
+      return Time.alignTime(this.aoN(5), 3)
     },
     ao12: function () {
-      return this.alignTime(this.aoN(12), 3)
+      return Time.alignTime(this.aoN(12), 3)
     }
   },
   methods: {
@@ -185,7 +186,6 @@ export default {
 
     startInspection: function () {
     // インスペクションをスタート
-      console.log('start inspection')
       this.resetInspection()
       this.inspectionStartDate = Date.now()
       this.isPlus2 = false
@@ -209,7 +209,6 @@ export default {
       this.inspectionRoop = inspectionRoop
     },
     stopInspection: function () {
-      console.log('stop inspection: ' + this.inspectionRoop)
       window.clearInterval(this.inspectionRoop)
     },
     resetInspection: function () {
@@ -225,7 +224,6 @@ export default {
       return this.time
     },
     startTimer: function () {
-      console.log('start timer')
       this.resetTimer()
       this.timerStartDate = Date.now()
       if (this.remainingTime < 0) {
@@ -241,6 +239,7 @@ export default {
     stopTimer: function () {
       window.clearInterval(this.timerRoop)
       this.time = (Date.now() - this.timerStartDate) / 1000
+      this.timeObj = new Time(this.time, this.isPlus2, this.isDnf, this.$children[0].getScramble())
       this.displayTime()
     },
     resetTimer: function () {
@@ -250,39 +249,10 @@ export default {
     },
     updateTimer: function () {
       this.time = (Date.now() - this.timerStartDate) / 1000
-      this.timeText = this.getTimeText(1)
-    },
-    alignTime: function (time, num) {
-      let minText = '0'
-      let secText = '00'
-      let decText = '000'
-      let minFlag = false
-      if (time > 60) {
-        minText = Math.floor(time / 60).toString()
-        minFlag = true
-      }
-      if (time > 1) {
-        secText = Math.floor(time % 60).toString()
-        secText = ('00' + secText).slice(-2)
-      }
-      if (time > 0) {
-        decText = Math.floor((time % 1) * 1000).toString()
-        decText = ('000' + decText).slice(-3)
-        decText = decText.slice(0, num)
-      }
-      let returnText = ''
-      if (minFlag) {
-        returnText = minText + ':' + secText + '.' + decText
-      } else {
-        returnText = secText + '.' + decText
-      }
-      return returnText
-    },
-    getTimeText: function (num = 3) {
-      return this.alignTime(this.time, num)
+      this.timeText = Time.alignTime(this.time, 1)
     },
     displayTime: function () {
-      this.timeText = this.getTimeText(3)
+      this.timeText = this.timeObj.getTimeText()
     },
     startHolding: function () {
       this.holding = true
@@ -290,14 +260,11 @@ export default {
       const holdStartDate = new Date()
       this.holdRoop = window.setInterval(() => {
         holdTime = (Date.now() - holdStartDate)
-        console.log(holdTime)
         if (holdTime >= this.holdOkTime) {
           this.holdOk = true
-          console.log('hold OK')
           window.clearInterval(this.holdRoop)
         }
       }, 10)
-      console.log('startHolding: ' + this.holdRoop)
     },
     endHolding: function () {
       this.holding = false

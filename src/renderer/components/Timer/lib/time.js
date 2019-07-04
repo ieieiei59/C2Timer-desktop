@@ -30,7 +30,7 @@ export class Time {
       return this.time
     }
   }
-  alignTime (time, num) {
+  static alignTime (time, num) {
     let minText = '0'
     let secText = '00'
     let decText = '000'
@@ -57,6 +57,6 @@ export class Time {
     return returnText
   }
   getTimeText (num = 3) {
-    return this.alignTime(this.getComputedTime(), num)
+    return Time.alignTime(this.getComputedTime(), num)
   }
 }
