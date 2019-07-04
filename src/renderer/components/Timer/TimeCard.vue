@@ -13,44 +13,13 @@ export default {
   ],
   computed: {
     timeText: function () {
-      let time = this.timeObj.time
-      let timeText = this.getTimeText(time, 3)
-      if (this.timeObj.isPlus2) {
-        time += 2
-        timeText = this.getTimeText(time, 3)
-      } else if (this.timeObj.isDnf) {
-        timeText = 'DNF'
+      if (this.timeObj.isDnf) {
+        return 'DNF'
       }
-      return timeText
+      return this.timeObj.getTimeText()
     }
   },
   methods: {
-    getTimeText: function (time, num = 3) {
-      let minText = '0'
-      let secText = '00'
-      let decText = '000'
-      let minFlag = false
-      if (time > 60) {
-        minText = Math.floor(time / 60).toString()
-        minFlag = true
-      }
-      if (time > 1) {
-        secText = Math.floor(time % 60).toString()
-        secText = ('00' + secText).slice(-2)
-      }
-      if (time > 0) {
-        decText = Math.floor((time % 1) * 1000).toString()
-        decText = ('000' + decText).slice(-3)
-        decText = decText.slice(0, num)
-      }
-      let returnText = ''
-      if (minFlag) {
-        returnText = minText + ':' + secText + '.' + decText
-      } else {
-        returnText = secText + '.' + decText
-      }
-      return returnText
-    }
   }
 }
 </script>

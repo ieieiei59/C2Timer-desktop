@@ -16,9 +16,10 @@
         <div class="time" :class="[green ? 'green-text' : '', red ? 'red-text' : '']">{{ timeText }}</div>
       </div>
 
-      <!-- 説明文 -->
-      <div class="time-description">
-        
+      <!-- ao5, ao12の表示 -->
+      <div class="ao-area">
+        <div class="ao5 aoN"><span>ao5:</span>{{ ao5 }}</div>
+        <div class="ao12 aoN"><span>ao12:</span>{{ ao12 }}</div>
       </div>
 
       <div class="times-area">
@@ -89,7 +90,49 @@ export default {
     this.updateStatusList()
     console.log(this)
   },
+  computed: {
+    ao5: function () {
+      return this.alignTime(this.aoN(5), 3)
+    },
+    ao12: function () {
+      return this.alignTime(this.aoN(12), 3)
+    }
+  },
   methods: {
+    aoN: function (n) {
+      if (this.timeArray.length > n - 1) {
+        const times = this.timeArray.slice(-n)
+        console.log(times)
+        let dnfCount = 0
+        let maxTime = times[0].getComputedTime()
+        let minTime = times[0].getComputedTime()
+        let sumTime = 0
+        times.forEach(time => {
+          const timeValue = time.getComputedTime()
+          if (time.isDnf) {
+            dnfCount += 1
+            if (dnfCount > 1) {
+              return 'DNF'
+            }
+          } else {
+            if (timeValue > maxTime) {
+              maxTime = timeValue
+            } else if (timeValue < minTime) {
+              minTime = timeValue
+            }
+            sumTime += timeValue
+          }
+        })
+        if (dnfCount > 0) {
+          sumTime -= minTime
+        } else {
+          sumTime -= minTime + maxTime
+        }
+        return sumTime / (n - 2)
+      } else {
+        return ''
+      }
+    },
     addTimeToArray () {
       const time = new Time(this.time, this.isPlus2, this.isDnf, this.$children[0].getScramble())
       this.timeArray.push(time)
@@ -209,21 +252,21 @@ export default {
       this.time = (Date.now() - this.timerStartDate) / 1000
       this.timeText = this.getTimeText(1)
     },
-    getTimeText: function (num = 3) {
+    alignTime: function (time, num) {
       let minText = '0'
       let secText = '00'
       let decText = '000'
       let minFlag = false
-      if (this.time > 60) {
-        minText = Math.floor(this.time / 60).toString()
+      if (time > 60) {
+        minText = Math.floor(time / 60).toString()
         minFlag = true
       }
-      if (this.time > 1) {
-        secText = Math.floor(this.time % 60).toString()
+      if (time > 1) {
+        secText = Math.floor(time % 60).toString()
         secText = ('00' + secText).slice(-2)
       }
-      if (this.time > 0) {
-        decText = Math.floor((this.time % 1) * 1000).toString()
+      if (time > 0) {
+        decText = Math.floor((time % 1) * 1000).toString()
         decText = ('000' + decText).slice(-3)
         decText = decText.slice(0, num)
       }
@@ -234,6 +277,9 @@ export default {
         returnText = secText + '.' + decText
       }
       return returnText
+    },
+    getTimeText: function (num = 3) {
+      return this.alignTime(this.time, num)
     },
     displayTime: function () {
       this.timeText = this.getTimeText(3)
@@ -395,7 +441,7 @@ export default {
     font-size: 15vw
 
 .container,
-.time-description,
+.ao-area,
 .time-container
     display: flex
     justify-content: center
@@ -403,9 +449,16 @@ export default {
 .container
     padding: 5rem 2rem
 
-.time-description-text
-    font-size: 5vw
-    font-family: Kosugi
+.ao-area
+    flex-direction: column
+
+.aoN
+    font-family: Mali
+    font-size: 3rem
+    display: flex
+    justify-content: center
+    span
+        margin-right: 1rem
 
 .times-area
     display: flex
