@@ -9,6 +9,7 @@ import { fas } from '@fortawesome/free-solid-svg-icons'
 import { fab } from '@fortawesome/free-brands-svg-icons'
 import { far } from '@fortawesome/free-regular-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import {db} from './datastore'
 
 library.add(fas, fab, far)
 
@@ -25,3 +26,7 @@ new Vue({
   store,
   template: '<App/>'
 }).$mount('#app')
+
+console.log(db)
+
+Vue.prototype.$db = db

@@ -58,6 +58,7 @@ export default {
       isPlus2: false,
       isDnf: false,
       timeArray: [],
+      newTimeArray: [],
 
       // タイマー
       timerRoop: null,
@@ -90,6 +91,18 @@ export default {
     )
     this.updateStatusList()
     console.log(this)
+    this.$nextTick().then(() => {
+      this.$db.find().sort({date: 1}).exec((err, docs) => {
+        console.log(docs)
+        docs.forEach((value, index) => {
+          const timeObj = new Time(value.time, value.isPlus2, value.isDnf, value.scramble)
+          this.timeArray.push(timeObj)
+        })
+        if (err) {
+          console.log(err)
+        }
+      })
+    })
   },
   computed: {
     ao5: function () {
@@ -103,7 +116,6 @@ export default {
     aoN: function (n) {
       if (this.timeArray.length > n - 1) {
         const times = this.timeArray.slice(-n)
-        console.log(times)
         let dnfCount = 0
         let maxTime = times[0].getComputedTime()
         let minTime = times[0].getComputedTime()
@@ -137,6 +149,7 @@ export default {
     addTimeToArray () {
       const time = new Time(this.time, this.isPlus2, this.isDnf, this.$children[0].getScramble())
       this.timeArray.push(time)
+      this.newTimeArray.push(time)
     },
     toGreen: function () {
       this.green = true
@@ -397,6 +410,7 @@ export default {
     window.clearInterval(this.holdRoop)
     window.clearInterval(this.inspectionRoop)
     window.clearInterval(this.timerRoop)
+    this.$db.insert(this.newTimeArray)
   }
 }
 </script>
